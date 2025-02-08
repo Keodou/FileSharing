@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
 
-// vsdfgsgf
 namespace FileSharing.FileServer
 {
     class FileServer

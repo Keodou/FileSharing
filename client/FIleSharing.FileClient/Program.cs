@@ -32,7 +32,27 @@ namespace FileSharing.FileClient
 
         private static async Task DownloadFile(string fileName)
         {
-            throw new NotImplementedException();
+            using (var client = new HttpClient())
+            {
+                var downloadUrl = $"{serverUrl}?file={fileName}";
+                HttpResponseMessage response = await client.GetAsync(downloadUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var savePath = Path.Combine("D:/Downloads", fileName);
+                    using (var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
+                    {
+                        await response.Content.CopyToAsync(fs);
+                    }
+
+                    Console.WriteLine($"Файл {fileName} успешно скачан.");
+                }
+
+                else
+                {
+                    Console.WriteLine("Ошибка при скачивании файла.");
+                }
+            }
         }
 
         private static async Task UploadFile(string filePath)

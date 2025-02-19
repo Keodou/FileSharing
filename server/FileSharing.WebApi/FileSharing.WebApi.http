@@ -1,4 +1,4 @@
-@FileSharing.WebApi_HostAddress = http://localhost:5261
+@FileSharing.WebApi_HostAddress = http://localhost:5045
 
 GET {{FileSharing.WebApi_HostAddress}}/weatherforecast/
 Accept: application/json

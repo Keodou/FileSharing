@@ -51,5 +51,18 @@ namespace FileSharing.WebApi.Controllers
 
             return PhysicalFile(filePath, "application/octet-stream", fileName);
         }
+
+        [HttpDelete("{fileName}")]
+        public IActionResult DeleteFile(string fileName)
+        {
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Файл не найден.");
+            }
+
+            System.IO.File.Delete(filePath);
+            return Ok($"{fileName} был успешно удален.");
+        }
     }
 }

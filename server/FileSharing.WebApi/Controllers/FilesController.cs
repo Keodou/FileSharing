@@ -19,7 +19,12 @@ namespace FileSharing.WebApi.Controllers
             }
 
             return Ok(files
-                .Select(Path.GetFileName)
+                .Select(filePath => new
+                {
+                    Name = Path.GetFileName(filePath),
+                    Created = new FileInfo(filePath).CreationTime,
+                    Size = new FileInfo(filePath).Length
+                })
                 .ToList());
         }
 

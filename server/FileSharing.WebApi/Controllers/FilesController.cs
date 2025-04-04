@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FileSharing.WebApi.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FileSharing.WebApi.Controllers
@@ -7,12 +8,21 @@ namespace FileSharing.WebApi.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private string uploadsFolder = "D:/FileStorage";
+        private readonly IWebHostEnvironment _emv;
+        private readonly string _uploadsFolder;
+
+        public FilesController(IWebHostEnvironment emv)
+        {
+            _emv = emv;
+            _uploadsFolder = Path.Combine(_emv.ContentRootPath, "Uploads");
+            if (!Directory.Exists(_uploadsFolder))
+                Directory.CreateDirectory(_uploadsFolder);
+        }
 
         [HttpGet("list")]
         public IActionResult GetFiles()
         {
-            var files = Directory.GetFiles(uploadsFolder);
+            var files = Directory.GetFiles(_uploadsFolder);
             if (files == null)
             {
                 return NotFound("Нет загруженных файлов");
@@ -28,7 +38,7 @@ namespace FileSharing.WebApi.Controllers
                 .ToList());
         }
 
-        [HttpPost]
+        [HttpPost("upload")]
         public async Task<IActionResult> UploadFileTask(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -36,11 +46,18 @@ namespace FileSharing.WebApi.Controllers
                 return BadRequest("Файл не найден");
             }
 
-            var filePath = Path.Combine(uploadsFolder, file.FileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var filePath = Path.Combine(_uploadsFolder, file.FileName);
+            await file.CopyToAsync(new FileStream(filePath, FileMode.Create));
+
+            var fileModel = new FileModel
             {
-                await file.CopyToAsync(stream);
-            }
+                Id = Guid.NewGuid(),
+                FileName = file.FileName,
+                ContentType = file.ContentType,
+                Size = file.Length,
+                UploadDate = DateTime.UtcNow,
+                Path = filePath
+            };
 
             return Ok(new { Name = file.FileName, Size = file.Length });
         }
@@ -48,7 +65,7 @@ namespace FileSharing.WebApi.Controllers
         [HttpGet("{fileName}")]
         public IActionResult DownloadFile(string fileName)
         {
-            var filePath = Path.Combine(uploadsFolder, fileName);
+            var filePath = Path.Combine(_uploadsFolder, fileName);
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound("Файл не найден.");
@@ -57,10 +74,11 @@ namespace FileSharing.WebApi.Controllers
             return PhysicalFile(filePath, "application/octet-stream", fileName);
         }
 
+        
         [HttpDelete("{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {
-            var filePath = Path.Combine(uploadsFolder, fileName);
+            var filePath = Path.Combine(_uploadsFolder, fileName);
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound("Файл не найден.");
@@ -68,6 +86,13 @@ namespace FileSharing.WebApi.Controllers
 
             System.IO.File.Delete(filePath);
             return Ok($"{fileName} был успешно удален.");
+        }
+        
+        private async Task<byte[]> ReadFile(IFormFile file)
+        {
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

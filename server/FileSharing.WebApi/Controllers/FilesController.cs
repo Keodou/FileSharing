@@ -8,13 +8,11 @@ namespace FileSharing.WebApi.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private readonly IWebHostEnvironment _emv;
         private readonly string _uploadsFolder;
 
         public FilesController(IWebHostEnvironment emv)
         {
-            _emv = emv;
-            _uploadsFolder = Path.Combine(_emv.ContentRootPath, "Uploads");
+            _uploadsFolder = Path.Combine(emv.ContentRootPath, "Uploads");
             if (!Directory.Exists(_uploadsFolder))
                 Directory.CreateDirectory(_uploadsFolder);
         }
@@ -86,13 +84,6 @@ namespace FileSharing.WebApi.Controllers
 
             System.IO.File.Delete(filePath);
             return Ok($"{fileName} был успешно удален.");
-        }
-        
-        private async Task<byte[]> ReadFile(IFormFile file)
-        {
-            using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            return memoryStream.ToArray();
         }
     }
 }

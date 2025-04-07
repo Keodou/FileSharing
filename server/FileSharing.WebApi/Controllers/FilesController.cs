@@ -1,4 +1,6 @@
-﻿using FileSharing.WebApi.Entities;
+﻿using System.Security.Claims;
+using FileSharing.WebApi.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,14 +11,17 @@ namespace FileSharing.WebApi.Controllers
     public class FilesController : ControllerBase
     {
         private readonly string _uploadsFolder;
+        private readonly FileSharingDbContext _dbContext;
 
-        public FilesController(IWebHostEnvironment emv)
+        public FilesController(IWebHostEnvironment emv, FileSharingDbContext dbContext)
         {
-            _uploadsFolder = Path.Combine(emv.ContentRootPath, "Uploads");
+            _dbContext = dbContext;
+            _uploadsFolder = Path.Combine(emv.WebRootPath, "Uploads");
             if (!Directory.Exists(_uploadsFolder))
                 Directory.CreateDirectory(_uploadsFolder);
         }
 
+        [Authorize]
         [HttpGet("list")]
         public IActionResult GetFiles()
         {
@@ -36,6 +41,7 @@ namespace FileSharing.WebApi.Controllers
                 .ToList());
         }
 
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFileTask(IFormFile file)
         {
@@ -43,8 +49,14 @@ namespace FileSharing.WebApi.Controllers
             {
                 return BadRequest("Файл не найден");
             }
-
-            var filePath = Path.Combine(_uploadsFolder, file.FileName);
+            
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var ownerId))
+            {
+                return Unauthorized("Пользователь не авторизован или идентификатор недействителен");
+            }
+            
+            var filePath = Path.Combine(_uploadsFolder, Guid.NewGuid().ToString() + Path.GetExtension(file.FileName));
             await file.CopyToAsync(new FileStream(filePath, FileMode.Create));
 
             var fileModel = new FileModel
@@ -54,12 +66,17 @@ namespace FileSharing.WebApi.Controllers
                 ContentType = file.ContentType,
                 Size = file.Length,
                 UploadDate = DateTime.UtcNow,
+                OwnerId = ownerId,
                 Path = filePath
             };
+
+            _dbContext.Files.Add(fileModel);
+            await _dbContext.SaveChangesAsync();
 
             return Ok(new { Name = file.FileName, Size = file.Length });
         }
 
+        [Authorize]
         [HttpGet("{fileName}")]
         public IActionResult DownloadFile(string fileName)
         {
@@ -72,7 +89,7 @@ namespace FileSharing.WebApi.Controllers
             return PhysicalFile(filePath, "application/octet-stream", fileName);
         }
 
-        
+        [Authorize]
         [HttpDelete("{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {

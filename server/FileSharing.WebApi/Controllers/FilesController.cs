@@ -3,6 +3,7 @@ using FileSharing.WebApi.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Controllers
 {
@@ -23,22 +24,19 @@ namespace FileSharing.WebApi.Controllers
 
         [Authorize]
         [HttpGet("list")]
-        public IActionResult GetFiles()
+        public async Task<IActionResult> GetUserFiles()
         {
-            var files = Directory.GetFiles(_uploadsFolder);
-            if (files == null)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var ownerId))
             {
-                return NotFound("Нет загруженных файлов");
+                return Unauthorized("Пользователь не авторизован или идентификатор недействителен");
             }
 
-            return Ok(files
-                .Select(filePath => new
-                {
-                    Name = Path.GetFileName(filePath),
-                    Created = new FileInfo(filePath).CreationTime,
-                    Size = new FileInfo(filePath).Length
-                })
-                .ToList());
+            var userFiles = await _dbContext.Files
+                .Where(f => f.OwnerId == ownerId)
+                .ToListAsync();
+
+            return Ok(userFiles);
         }
 
         [Authorize]
@@ -49,13 +47,13 @@ namespace FileSharing.WebApi.Controllers
             {
                 return BadRequest("Файл не найден");
             }
-            
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var ownerId))
             {
                 return Unauthorized("Пользователь не авторизован или идентификатор недействителен");
             }
-            
+
             var filePath = Path.Combine(_uploadsFolder, Guid.NewGuid().ToString() + Path.GetExtension(file.FileName));
             await file.CopyToAsync(new FileStream(filePath, FileMode.Create));
 
@@ -77,30 +75,57 @@ namespace FileSharing.WebApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("{fileName}")]
-        public IActionResult DownloadFile(string fileName)
+        [HttpGet("download/{id}")]
+        public async Task<IActionResult> DownloadFile(Guid id)
         {
-            var filePath = Path.Combine(_uploadsFolder, fileName);
-            if (!System.IO.File.Exists(filePath))
+            var file = await _dbContext.Files.FirstOrDefaultAsync(f => f.Id == id);
+            if (file == null)
             {
                 return NotFound("Файл не найден.");
             }
 
-            return PhysicalFile(filePath, "application/octet-stream", fileName);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (file.OwnerId.ToString() != userId)
+            {
+                return StatusCode(403, "У вас нет прав на скачивание этого файла.");
+            }
+            
+            var filePath = file.Path;
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Файл был удален с сервера");
+            }
+            
+            return PhysicalFile(filePath, file.ContentType, file.FileName);
         }
 
         [Authorize]
-        [HttpDelete("{fileName}")]
-        public IActionResult DeleteFile(string fileName)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteFile(Guid id)
         {
-            var filePath = Path.Combine(_uploadsFolder, fileName);
-            if (!System.IO.File.Exists(filePath))
+            var file = await _dbContext.Files.FirstOrDefaultAsync(f => f.Id == id);
+            
+            if (file == null)
             {
                 return NotFound("Файл не найден.");
             }
 
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (file.OwnerId.ToString() != userId)
+            {
+                return StatusCode(403, "У вас нет прав на удаление этого файла.");
+            }
+            
+            var filePath = file.Path;
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Не существует файла по данной директории");
+            }
+
             System.IO.File.Delete(filePath);
-            return Ok($"{fileName} был успешно удален.");
+            _dbContext.Files.Remove(file);
+            await _dbContext.SaveChangesAsync();
+            return Ok($"{file.FileName} был успешно удален.");
         }
     }
 }

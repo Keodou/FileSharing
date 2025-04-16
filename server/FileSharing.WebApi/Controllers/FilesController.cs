@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,65 +14,39 @@ namespace FileSharing.WebApi.Controllers
     {
         private readonly string _uploadsFolder;
         private readonly FileSharingDbContext _dbContext;
+        private readonly IFileService _fileService;
 
-        public FilesController(IWebHostEnvironment emv, FileSharingDbContext dbContext)
+        public FilesController(IWebHostEnvironment emv, FileSharingDbContext dbContext, IFileService service)
         {
             _dbContext = dbContext;
             _uploadsFolder = Path.Combine(emv.WebRootPath, "Uploads");
             if (!Directory.Exists(_uploadsFolder))
                 Directory.CreateDirectory(_uploadsFolder);
+            _fileService = service;
+        }
+
+        private Guid GetUserId()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(userId, out var guid) ? guid : throw new UnauthorizedAccessException();
         }
 
         [Authorize]
         [HttpGet("list")]
         public async Task<IActionResult> GetUserFiles()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var ownerId))
-            {
-                return Unauthorized("Пользователь не авторизован или идентификатор недействителен");
-            }
-
-            var userFiles = await _dbContext.Files
-                .Where(f => f.OwnerId == ownerId)
-                .ToListAsync();
-
-            return Ok(userFiles);
+            var userId = GetUserId();
+            var files = await _fileService.GetUserFilesAsync(userId);
+            return Ok(files);
         }
 
         [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFileTask(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("Файл не найден");
-            }
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var ownerId))
-            {
-                return Unauthorized("Пользователь не авторизован или идентификатор недействителен");
-            }
-
-            var filePath = Path.Combine(_uploadsFolder, Guid.NewGuid().ToString() + Path.GetExtension(file.FileName));
-            await file.CopyToAsync(new FileStream(filePath, FileMode.Create));
-
-            var fileModel = new FileModel
-            {
-                Id = Guid.NewGuid(),
-                FileName = file.FileName,
-                ContentType = file.ContentType,
-                Size = file.Length,
-                UploadDate = DateTime.UtcNow,
-                OwnerId = ownerId,
-                Path = filePath
-            };
-
-            _dbContext.Files.Add(fileModel);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(new { Name = file.FileName, Size = file.Length });
+            var userId = GetUserId();
+            var (success, message, result) = await _fileService.UploadFileAsync(userId, file);
+            return success ? Ok(result) : BadRequest(message);
         }
 
         [Authorize]

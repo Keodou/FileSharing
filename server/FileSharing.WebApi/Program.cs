@@ -1,5 +1,7 @@
 using System.Text;
 using FileSharing.WebApi;
+using FileSharing.WebApi.Application.Interfaces;
+using FileSharing.WebApi.Application.Services;
 using FileSharing.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 var app = builder.Build();
 

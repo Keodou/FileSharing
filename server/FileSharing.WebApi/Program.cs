@@ -2,6 +2,7 @@ using System.Text;
 using FileSharing.WebApi;
 using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Application.Services;
+using FileSharing.WebApi.Infrastructure.Storage;
 using FileSharing.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -60,10 +61,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<StorageInitializer>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
 var app = builder.Build();
+
+var storageInitializer = app.Services.GetRequiredService<StorageInitializer>();
+storageInitializer.EnsureUploadDirectoryExists();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

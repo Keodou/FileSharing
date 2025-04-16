@@ -47,13 +47,27 @@ public class FileService : IFileService
         return (true, "Файл успешно загружен", new { file.FileName, file.Length });
     }
 
-    public Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadFileAsync(Guid userId, Guid fileId)
+    public async Task<(byte[], string, string)> DownloadFileAsync(Guid userId, Guid fileId)
     {
-        throw new NotImplementedException();
+        var file = await _dbContext.Files.FirstOrDefaultAsync(f => f.Id == fileId);
+        if (file == null || file.OwnerId != userId || !File.Exists(file.Path))
+            throw new FileNotFoundException("Файл не найден или доступ запрещен.");
+
+        var bytes = await File.ReadAllBytesAsync(file.Path);
+        return (bytes, file.ContentType, file.FileName);
     }
 
-    public Task<(bool Success, string Message)> DeleteFileAsync(Guid userId, Guid fileId)
+    public async Task<(bool, string)> DeleteFileAsync(Guid userId, Guid fileId)
     {
-        throw new NotImplementedException();
+        var file = await _dbContext.Files.FirstOrDefaultAsync(f => f.Id == fileId);
+        if (file == null || file.OwnerId != userId)
+            return (false, "Файл не найден или доступ запрещен.");
+        
+        if (File.Exists(file.Path))
+            File.Delete(file.Path);
+
+        _dbContext.Files.Remove(file);
+        await _dbContext.SaveChangesAsync();
+        return (true, $"{file.FileName} был удален.");
     }
 }

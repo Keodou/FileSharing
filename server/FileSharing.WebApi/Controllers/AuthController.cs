@@ -30,6 +30,7 @@ namespace FileSharing.WebApi.Controllers
             return Ok(token);
         }
 
+        // Проверочный метод
         [Authorize]
         [HttpGet]
         public IActionResult AuthenticatedOnlyEndpoint()

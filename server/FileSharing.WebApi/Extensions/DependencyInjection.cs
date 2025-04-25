@@ -1,7 +1,6 @@
 using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Application.Services;
 using FileSharing.WebApi.Infrastructure.Storage;
-using FileSharing.WebApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Extensions;

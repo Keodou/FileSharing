@@ -1,5 +1,5 @@
 using FileSharing.WebApi.Application.Interfaces;
-using FileSharing.WebApi.Entities;
+using FileSharing.WebApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Application.Services;

@@ -1,13 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FileSharing.WebApi.Entities;
+using FileSharing.WebApi.Application.Interfaces;
+using FileSharing.WebApi.Domain.Entities;
 using FileSharing.WebApi.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FileSharing.WebApi.Services;
+namespace FileSharing.WebApi.Application.Services;
 
 public class AuthService(FileSharingDbContext context, IConfiguration configuration) : IAuthService
 {
@@ -24,6 +25,7 @@ public class AuthService(FileSharingDbContext context, IConfiguration configurat
 
         user.Username = request.Username;
         user.PasswordHash = hashedPassword;
+        user.Role = "User";
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
@@ -54,7 +56,8 @@ public class AuthService(FileSharingDbContext context, IConfiguration configurat
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var key = new SymmetricSecurityKey(

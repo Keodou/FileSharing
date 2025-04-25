@@ -1,7 +1,7 @@
-using FileSharing.WebApi.Entities;
+using FileSharing.WebApi.Domain.Entities;
 using FileSharing.WebApi.Models;
 
-namespace FileSharing.WebApi.Services;
+namespace FileSharing.WebApi.Application.Interfaces;
 
 public interface IAuthService
 {

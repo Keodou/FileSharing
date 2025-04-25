@@ -1,4 +1,4 @@
-namespace FileSharing.WebApi.Entities;
+namespace FileSharing.WebApi.Domain.Entities;
 
 public class FileModel
 {

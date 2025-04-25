@@ -1,7 +1,7 @@
-﻿using FileSharing.WebApi.Entities;
+﻿using FileSharing.WebApi.Application.Interfaces;
+using FileSharing.WebApi.Domain.Entities;
 using FileSharing.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
-using FileSharing.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FileSharing.WebApi.Controllers

@@ -1,4 +1,4 @@
-using FileSharing.WebApi.Entities;
+using FileSharing.WebApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi;

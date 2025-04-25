@@ -1,4 +1,4 @@
-using FileSharing.WebApi.Entities;
+using FileSharing.WebApi.Domain.Entities;
 
 namespace FileSharing.WebApi.Application.Interfaces;
 

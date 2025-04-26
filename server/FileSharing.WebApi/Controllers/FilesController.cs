@@ -8,7 +8,15 @@ namespace FileSharing.WebApi.Controllers
     [ApiController]
     public class FilesController(IFileService fileService, ICurrentUserService currentUserService) : ControllerBase
     {
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllFiles()
+        {
+            var files = await fileService.GetAllFiles();
+            return Ok(files);
+        }
+        
+        [Authorize]
         [HttpGet("list")]
         public async Task<IActionResult> GetUserFiles()
         {
@@ -17,7 +25,7 @@ namespace FileSharing.WebApi.Controllers
             return Ok(files);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFileTask(IFormFile file)
         {
@@ -26,7 +34,7 @@ namespace FileSharing.WebApi.Controllers
             return success ? Ok(result) : BadRequest(message);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet("download/{id}")]
         public async Task<IActionResult> DownloadFile(Guid id)
         {
@@ -42,7 +50,7 @@ namespace FileSharing.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteFile(Guid id)
         {

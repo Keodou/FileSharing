@@ -17,6 +17,11 @@ public class FileService : IFileService
             Directory.CreateDirectory(_uploadsFolder);
     }
 
+    public async Task<IEnumerable<FileModel>> GetAllFiles()
+    {
+        return await _dbContext.Files.ToListAsync();
+    }
+    
     public async Task<IEnumerable<FileModel>> GetUserFilesAsync(Guid userId)
     {
         return await _dbContext.Files.Where(f => f.OwnerId == userId).ToListAsync();

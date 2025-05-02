@@ -54,8 +54,8 @@ namespace FileSharing.WebApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteFile(Guid id)
         {
-            var userId = currentUserService.UserId;
-            var (success, message) = await fileService.DeleteFileAsync(userId, id);
+            var currentUser = currentUserService.GetCurrentUser();
+            var (success, message) = await fileService.DeleteFileAsync(currentUser.Id, currentUser.Role, id);
             return success ? Ok(message) : StatusCode(403, message);
         }
     }

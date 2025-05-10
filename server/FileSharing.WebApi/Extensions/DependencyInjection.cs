@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddSingleton<StorageInitializer>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IFileService, FileService>();
     }
 }

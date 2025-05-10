@@ -11,4 +11,5 @@ public class FileModel
     public string Path { get; set; }
 
     public User Owner { get; set; } = null!;
+    public List<SharedFile> Shares { get; set; } = [];
 }

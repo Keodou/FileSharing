@@ -1,6 +1,6 @@
-﻿namespace FileSharing.WebApi.Models
+﻿namespace FileSharing.WebApi.DTO
 {
-    public class UserDTO
+    public class UserDto
     {
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;

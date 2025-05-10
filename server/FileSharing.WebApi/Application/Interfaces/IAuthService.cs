@@ -1,10 +1,10 @@
 using FileSharing.WebApi.Domain.Entities;
-using FileSharing.WebApi.Models;
+using FileSharing.WebApi.DTO;
 
 namespace FileSharing.WebApi.Application.Interfaces;
 
 public interface IAuthService
 {
-    Task<User?> RegisterAsync(UserDTO request);
-    Task<string?> LoginAsync(UserDTO request);
+    Task<User?> RegisterAsync(UserDto request);
+    Task<string?> LoginAsync(UserDto request);
 }

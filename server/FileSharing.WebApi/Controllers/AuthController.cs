@@ -1,6 +1,6 @@
 ﻿using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Domain.Entities;
-using FileSharing.WebApi.Models;
+using FileSharing.WebApi.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -11,7 +11,7 @@ namespace FileSharing.WebApi.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDTO request)
+        public async Task<ActionResult<User>> Register(UserDto request)
         {
             var user = await authService.RegisterAsync(request);
             if (user is null)
@@ -21,7 +21,7 @@ namespace FileSharing.WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserDTO request)
+        public async Task<ActionResult<string>> Login(UserDto request)
         {
             var token = await authService.LoginAsync(request);
             if (token is null)

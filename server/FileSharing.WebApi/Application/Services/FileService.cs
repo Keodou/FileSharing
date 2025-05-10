@@ -1,6 +1,7 @@
 using FileSharing.WebApi.Application.Enums;
 using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Domain.Entities;
+using FileSharing.WebApi.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Application.Services;
@@ -70,5 +71,46 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
         dbContext.Files.Remove(file);
         await dbContext.SaveChangesAsync();
         return (true, $"{file.FileName} был удален.");
+    }
+
+    public async Task<(bool, string)> ShareFileAsync(Guid userId, Guid fileId, bool isPublic, Guid? sharedWithUserId = null)
+    {
+        var file = await dbContext.Files.FindAsync(fileId);
+        if (file == null)
+            return (false, "Файл не найден.");
+
+        if (file.OwnerId != userId)
+            return (false, "Вы не владелец этого файла.");
+
+        var sharedFile = new SharedFile()
+        {
+            Id = Guid.NewGuid(),
+            FileId = fileId,
+            SharedWithUserId = isPublic ? null : sharedWithUserId,
+            Token = isPublic ? Guid.NewGuid().ToString() : null,
+            SharedAt = DateTime.UtcNow
+        };
+
+        dbContext.SharedFiles.Add(sharedFile);
+        await dbContext.SaveChangesAsync();
+
+        return (true, isPublic
+            ? $"Файл доступен по ссылке: /api/files/share/{sharedFile.Token}"
+            : "Файл успешно предоставлен пользователю.");
+    }
+
+    public async Task<(FileModel?, string)> GetSharedFileAsync(string token)
+    {
+        var sharedFile = await dbContext.SharedFiles
+            .Include(fs => fs.File)
+            .FirstOrDefaultAsync(fs => fs.Token == token);
+
+        if (sharedFile == null)
+            return (null, "Файл не найден или закрыт доступ.");
+
+        if (sharedFile.ExpirationDate != null && sharedFile.ExpirationDate < DateTime.UtcNow)
+            return (null, "Срок действия ссылки истек.");
+
+        return (sharedFile.File, "Файл найден.");
     }
 }

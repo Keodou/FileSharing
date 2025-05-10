@@ -1,7 +1,8 @@
 using FileSharing.WebApi.Application.Enums;
 using FileSharing.WebApi.Application.Interfaces;
 using FileSharing.WebApi.Domain.Entities;
-using FileSharing.WebApi.Models;
+using FileSharing.WebApi.DTO;
+using FileSharing.WebApi.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace FileSharing.WebApi.Application.Services;
 
 public class AuthService(FileSharingDbContext context, ITokenService tokenService) : IAuthService
 {
-    public async Task<User?> RegisterAsync(UserDTO request)
+    public async Task<User?> RegisterAsync(UserDto request)
     {
         if (await context.Users.AnyAsync(u => u.Username == request.Username))
             return null;
@@ -27,7 +28,7 @@ public class AuthService(FileSharingDbContext context, ITokenService tokenServic
         return user;
     }
 
-    public async Task<string?> LoginAsync(UserDTO request)
+    public async Task<string?> LoginAsync(UserDto request)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
         

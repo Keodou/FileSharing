@@ -15,6 +15,7 @@ public class CurrentUserService : ICurrentUserService
         var userIdStr = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var roleStr = user?.FindFirst(ClaimTypes.Role)?.Value;
         
+        // TODO: переписать условие, вознкиает конфликт, если человек хочет скачать паблик файл
         if (string.IsNullOrWhiteSpace(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
         {
             throw new UnauthorizedAccessException("Пользователь не авторизован или идентификатор недействителен");

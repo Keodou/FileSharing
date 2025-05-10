@@ -1,4 +1,5 @@
 ﻿using FileSharing.WebApi.Application.Interfaces;
+using FileSharing.WebApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,6 +58,26 @@ namespace FileSharing.WebApi.Controllers
             var currentUser = currentUserService.GetCurrentUser();
             var (success, message) = await fileService.DeleteFileAsync(currentUser.Id, currentUser.Role, id);
             return success ? Ok(message) : StatusCode(403, message);
+        }
+
+        [Authorize]
+        [HttpPost("share/{fileId}")]
+        public async Task<IActionResult> ShareFile(Guid fileId, [FromBody] SharedFileDto sharedFileDto)
+        {
+            var currentUser = currentUserService.GetCurrentUser();
+            var (success, message) = await fileService.ShareFileAsync(currentUser.Id, fileId, sharedFileDto.IsPublic,
+                sharedFileDto.SharedWithUserId);
+            return success ? Ok(message) : BadRequest(message);
+        }
+        
+        [HttpGet("share/{token}")]
+        public async Task<IActionResult> GetSharedFile(string token)
+        {
+            var (file, message) = await fileService.GetSharedFileAsync(token);
+            if (file == null)
+                return NotFound(message);
+
+            return PhysicalFile(file.Path, file.ContentType, file.FileName);
         }
     }
 }

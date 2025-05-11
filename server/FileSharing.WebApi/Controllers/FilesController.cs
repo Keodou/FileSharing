@@ -21,8 +21,11 @@ namespace FileSharing.WebApi.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetUserFiles()
         {
-            var userId = currentUserService.UserId;
-            var files = await fileService.GetUserFilesAsync(userId);
+            var currentUser = currentUserService.GetCurrentUser();
+            if (currentUser == null)
+                return Unauthorized("Пользователь не авторизован.");
+            
+            var files = await fileService.GetUserFilesAsync(currentUser.Id);
             return Ok(files);
         }
 
@@ -30,8 +33,11 @@ namespace FileSharing.WebApi.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFileTask(IFormFile file)
         {
-            var userId = currentUserService.UserId;
-            var (success, message, result) = await fileService.UploadFileAsync(userId, file);
+            var currentUser = currentUserService.GetCurrentUser();
+            if (currentUser == null)
+                return Unauthorized("Пользователь не авторизован.");
+            
+            var (success, message, result) = await fileService.UploadFileAsync(currentUser.Id, file);
             return success ? Ok(result) : BadRequest(message);
         }
 
@@ -41,8 +47,11 @@ namespace FileSharing.WebApi.Controllers
         {
             try
             {
-                var userId = currentUserService.UserId;
-                var (fileBytes, contentType, fileName) = await fileService.DownloadFileAsync(userId, id);
+                var currentUser = currentUserService.GetCurrentUser();
+                if (currentUser == null)
+                    return Unauthorized("Пользователь не авторизован.");
+                
+                var (fileBytes, contentType, fileName) = await fileService.DownloadFileAsync(currentUser.Id, id);
                 return File(fileBytes, contentType, fileName);
             }
             catch (Exception ex)
@@ -56,6 +65,9 @@ namespace FileSharing.WebApi.Controllers
         public async Task<IActionResult> DeleteFile(Guid id)
         {
             var currentUser = currentUserService.GetCurrentUser();
+            if (currentUser == null)
+                return Unauthorized("Пользователь не авторизован.");
+            
             var (success, message) = await fileService.DeleteFileAsync(currentUser.Id, currentUser.Role, id);
             return success ? Ok(message) : StatusCode(403, message);
         }
@@ -65,6 +77,9 @@ namespace FileSharing.WebApi.Controllers
         public async Task<IActionResult> ShareFile(Guid fileId, [FromBody] SharedFileDto sharedFileDto)
         {
             var currentUser = currentUserService.GetCurrentUser();
+            if (currentUser == null)
+                return Unauthorized("Пользователь не авторизован.");
+            
             var (success, message) = await fileService.ShareFileAsync(currentUser.Id, fileId, sharedFileDto.IsPublic,
                 sharedFileDto.SharedWithUserId);
             return success ? Ok(message) : BadRequest(message);

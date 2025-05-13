@@ -6,20 +6,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Application.Services;
 
+/// <summary>
+/// Осуществляет логику работы с файлами.
+/// </summary>
+/// <param name="dbContext">контекст базы данных.</param>
+/// <param name="emv">окружение веб-хоста (для получения директории загружаемых файлов.</param>
 public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv) : IFileService
 {
     private readonly string _uploadsFolder = Path.Combine(emv.WebRootPath, "Uploads");
-
+    
+    /// <inheritdoc />
     public async Task<IEnumerable<FileModel>> GetAllFiles()
     {
         return await dbContext.Files.ToListAsync();
     }
     
+    /// <inheritdoc />
     public async Task<IEnumerable<FileModel>> GetUserFilesAsync(Guid userId)
     {
         return await dbContext.Files.Where(f => f.OwnerId == userId).ToListAsync();
     }
 
+    /// <inheritdoc />
     public async Task<(bool, string, object?)> UploadFileAsync(Guid userId, IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -45,6 +53,7 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
         return (true, "Файл успешно загружен", new { file.FileName, file.Length });
     }
 
+    /// <inheritdoc />
     public async Task<(byte[], string, string)> DownloadFileAsync(Guid userId, Guid fileId)
     {
         var file = await dbContext.Files.FirstOrDefaultAsync(f => f.Id == fileId);
@@ -55,6 +64,7 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
         return (bytes, file.ContentType, file.FileName);
     }
 
+    /// <inheritdoc />
     public async Task<(bool, string)> DeleteFileAsync(Guid userId, UserRole userRole, Guid fileId)
     {
         var file = await dbContext.Files.FirstOrDefaultAsync(f => f.Id == fileId);
@@ -73,6 +83,7 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
         return (true, $"{file.FileName} был удален.");
     }
 
+    /// <inheritdoc />
     public async Task<(bool, string)> ShareFileAsync(Guid userId, Guid fileId, bool isPublic, Guid? sharedWithUserId = null)
     {
         var file = await dbContext.Files.FindAsync(fileId);
@@ -99,6 +110,7 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
             : "Файл успешно предоставлен пользователю.");
     }
 
+    /// <inheritdoc />
     public async Task<(FileModel?, string)> GetSharedFileAsync(string token)
     {
         var sharedFile = await dbContext.SharedFiles

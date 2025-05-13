@@ -8,8 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.WebApi.Application.Services;
 
+/// <summary>
+/// Реализация логики аутентификации.
+/// </summary>
+/// <param name="context">контекст базы данных.</param>
+/// <param name="tokenService">сервис для определения JWT токена.</param>
 public class AuthService(FileSharingDbContext context, ITokenService tokenService) : IAuthService
 {
+    /// <inheritdoc />
     public async Task<User?> RegisterAsync(UserDto request)
     {
         if (await context.Users.AnyAsync(u => u.Username == request.Username))
@@ -28,6 +34,7 @@ public class AuthService(FileSharingDbContext context, ITokenService tokenServic
         return user;
     }
 
+    /// <inheritdoc />
     public async Task<string?> LoginAsync(UserDto request)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
@@ -42,7 +49,6 @@ public class AuthService(FileSharingDbContext context, ITokenService tokenServic
         }
 
         var token = tokenService.CreateToken(user);
-
         return token;
     }
 }

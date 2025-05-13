@@ -2,14 +2,22 @@
 using FileSharing.WebApi.Domain.Entities;
 using FileSharing.WebApi.DTO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace FileSharing.WebApi.Controllers
 {
+    /// <summary>
+    /// Контроллер для аутентификации пользователей.
+    /// </summary>
+    /// <param name="authService">Сервис логики аутентификации пользователя.</param>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
+        /// <summary>
+        /// Регистрация пользователя.
+        /// </summary>
+        /// <param name="request">Логин и пароль пользователя.</param>
+        /// <returns>Нового зарегистрированного пользваотеля</returns>
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
@@ -20,6 +28,11 @@ namespace FileSharing.WebApi.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Вход в систему.
+        /// </summary>
+        /// <param name="request">Логин и пароль пользователя.</param>
+        /// <returns>JWT токен для аутентификации.</returns>
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserDto request)
         {
@@ -28,14 +41,6 @@ namespace FileSharing.WebApi.Controllers
                 return BadRequest("Неправильный логин или пароль.");
 
             return Ok(token);
-        }
-
-        // Проверочный метод
-        [Authorize]
-        [HttpGet]
-        public IActionResult AuthenticatedOnlyEndpoint()
-        {
-            return Ok("You are authenticated");
         }
     }
 }

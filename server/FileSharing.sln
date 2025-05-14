@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSharing.WebApi", "FileSharing.WebApi\FileSharing.WebApi.csproj", "{F64F9E99-501B-491C-A739-0F5653A2C654}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSharing.Tests", "FileSharing.Tests\FileSharing.Tests.csproj", "{2D738EAF-2988-47D4-9635-1B10F6B37C5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F64F9E99-501B-491C-A739-0F5653A2C654}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F64F9E99-501B-491C-A739-0F5653A2C654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F64F9E99-501B-491C-A739-0F5653A2C654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D738EAF-2988-47D4-9635-1B10F6B37C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D738EAF-2988-47D4-9635-1B10F6B37C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D738EAF-2988-47D4-9635-1B10F6B37C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D738EAF-2988-47D4-9635-1B10F6B37C5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

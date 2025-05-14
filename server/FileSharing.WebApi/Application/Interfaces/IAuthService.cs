@@ -9,7 +9,7 @@ namespace FileSharing.WebApi.Application.Interfaces;
 public interface IAuthService
 {
     /// <summary>
-    /// Регистрация нового пользователя.
+    /// Реализует логику регистрации нового пользователя.
     /// </summary>
     /// <param name="request">логин и пароль пользователя.</param>
     /// <returns>новый пользователь.</returns>
@@ -19,6 +19,6 @@ public interface IAuthService
     /// Аутентификация пользователя.
     /// </summary>
     /// <param name="request">логин и пароль пользователя.</param>
-    /// <returns></returns>
+    /// <returns>JWT токен в формате строки.</returns>
     Task<string?> LoginAsync(UserDto request);
 }

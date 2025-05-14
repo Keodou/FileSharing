@@ -8,10 +8,6 @@ namespace FileSharing.WebApi.Application.Interfaces;
 /// </summary>
 public interface IFileService
 {
-    /// <summary>
-    /// Выводит список всех загруженных на сервер файлов.
-    /// </summary>
-    /// <returns>Список файлов.</returns>
     Task<IEnumerable<FileModel>> GetAllFiles();
     
     /// <summary>

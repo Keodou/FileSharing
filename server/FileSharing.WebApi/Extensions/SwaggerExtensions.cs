@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.OpenApi.Models;
 
 namespace FileSharing.WebApi.Extensions;
@@ -31,6 +32,11 @@ public static class SwaggerExtensions
                     Array.Empty<string>()
                 }
             });
+
+            // Xml doc in swagger UI
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            options.IncludeXmlComments(xmlPath);
         });
     }
 }

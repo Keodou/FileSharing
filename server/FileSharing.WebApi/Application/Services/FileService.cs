@@ -34,8 +34,10 @@ public class FileService(FileSharingDbContext dbContext, IWebHostEnvironment emv
             return (false, "Файл не найден", null);
         
         var filePath = Path.Combine(_uploadsFolder, Guid.NewGuid().ToString() + Path.GetExtension(file.FileName));
-        await using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
 
         var fileModel = new FileModel
         {

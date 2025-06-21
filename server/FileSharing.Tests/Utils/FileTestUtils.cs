@@ -24,4 +24,11 @@ public static class FileTestUtils
             ContentType = "text/plain"
         };
     }
+
+    public static string CreateMockFilePath(string folderPath, string fileName, string content)
+    {
+        var filePath = Path.Combine(folderPath, fileName);
+        File.WriteAllText(filePath, content);
+        return filePath;
+    }
 }

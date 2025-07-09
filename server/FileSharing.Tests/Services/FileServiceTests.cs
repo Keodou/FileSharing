@@ -4,9 +4,7 @@ using FileSharing.Tests.Utils;
 using FileSharing.WebApi.Application.Services;
 using FileSharing.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Moq;
-using Xunit.Sdk;
 
 namespace FileSharing.Tests.Services;
 

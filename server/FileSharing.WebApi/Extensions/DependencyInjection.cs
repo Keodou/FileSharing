@@ -3,6 +3,7 @@ using FileSharing.WebApi.Application.Services;
 using FileSharing.WebApi.Infrastructure.Persistence;
 using FileSharing.WebApi.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FileSharing.WebApi.Extensions;
 
@@ -13,6 +14,16 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddDbContext<FileSharingDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("FileSharingConnection")));
+        services.AddCors(options =>
+        {
+            options.AddPolicy("ReactPolicy", policy =>
+            {
+                policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
         services.AddSingleton<StorageInitializer>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAuthService, AuthService>();

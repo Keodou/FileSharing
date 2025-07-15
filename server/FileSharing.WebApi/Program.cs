@@ -27,6 +27,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseCors("ReactPolicy");
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

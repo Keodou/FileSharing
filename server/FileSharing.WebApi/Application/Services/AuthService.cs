@@ -35,7 +35,7 @@ public class AuthService(FileSharingDbContext context, ITokenService tokenServic
     }
 
     /// <inheritdoc />
-    public async Task<string?> LoginAsync(UserDto request)
+    public async Task<AuthResponse?> LoginAsync(UserDto request)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
         
@@ -48,7 +48,9 @@ public class AuthService(FileSharingDbContext context, ITokenService tokenServic
             return null;
         }
 
-        var token = tokenService.CreateToken(user);
-        return token;
+        return new AuthResponse
+        {
+            Token = tokenService.CreateToken(user)
+        };
     }
 }

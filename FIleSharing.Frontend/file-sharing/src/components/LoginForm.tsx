@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginFormProps {
-  onLoginSuccess?: () => void;
-}
-
-export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-
+export const LoginForm: React.FC = () => {
+    const navigate = useNavigate();
     const { login } = useAuth();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
-    try {
-        await login({ username, password });
-        if (onLoginSuccess) {
-            onLoginSuccess();
-        }
-    } catch (error) {
-        console.error('Ошибка входа:', error);
-    }
-};
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+
+      try {
+          await login({ username, password });
+          navigate('/files');
+      } catch (err) {
+          setError('Неверное имя пользователя или пароль');
+      }
+    };
 
   return (
     <form onSubmit={handleSubmit}>
         <h2>Вход</h2>
+
+        {error && <div style={{ color: 'red' }}>{error}</div>}
 
         <label>
         Имя пользователя:

@@ -10,18 +10,13 @@ interface UseAuthResult {
 }
 
 export function useAuth(): UseAuthResult {
-    const [token, setToken] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
     const login = async (dto: UserDto): Promise<void> => {
-        // eslint-disable-next-line no-useless-catch
-        try {
-            const token = await authService.login(dto);
-            if (token) {
-                localStorage.setItem('token', token);
-                setToken(token);
-            }
-        } catch (err) {
-            throw err;
+        const result = await authService.login(dto);
+        if (result) {
+            localStorage.setItem('token', result);
+            setToken(result);
         }
     };
 

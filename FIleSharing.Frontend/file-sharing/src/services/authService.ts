@@ -38,7 +38,15 @@ export const authService = {
             throw new Error('Вход не удался');
         }
 
-        const result = await response.json();
-        return result.token || null;
+        try {
+            const result = await response.json();
+            if (typeof result !== 'object' || !result.token) {
+                throw new Error('Неверный формат ответа');
+            }
+            return result.token;
+        } catch (error) {
+            console.error('Ошибка при парсинге JSON:', error);
+            throw new Error('Ошибка входа');
+        }
     }
 }

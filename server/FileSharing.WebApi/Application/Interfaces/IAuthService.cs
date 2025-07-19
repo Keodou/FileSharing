@@ -20,5 +20,10 @@ public interface IAuthService
     /// </summary>
     /// <param name="request">логин и пароль пользователя.</param>
     /// <returns>JWT токен в формате строки.</returns>
-    Task<string?> LoginAsync(UserDto request);
+    Task<AuthResponse?> LoginAsync(UserDto request);
+}
+
+public class AuthResponse
+{
+    public string Token { get; set; }
 }

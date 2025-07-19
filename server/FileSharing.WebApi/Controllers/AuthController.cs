@@ -1,4 +1,5 @@
 ﻿using FileSharing.WebApi.Application.Interfaces;
+using FileSharing.WebApi.Application.Services;
 using FileSharing.WebApi.Domain.Entities;
 using FileSharing.WebApi.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ namespace FileSharing.WebApi.Controllers
         /// <param name="request">Логин и пароль пользователя.</param>
         /// <returns>JWT токен для аутентификации.</returns>
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserDto request)
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] UserDto request)
         {
             var token = await authService.LoginAsync(request);
             if (token is null)

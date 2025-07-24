@@ -17,6 +17,7 @@ export const LoginForm: React.FC = () => {
       try {
           await login({ username, password });
           navigate('/files');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
           setError('Неверное имя пользователя или пароль');
       }

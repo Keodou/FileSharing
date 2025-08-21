@@ -35,9 +35,9 @@ export const uploadFile = async (file: File, token: string): Promise<any> => {
     return await response.json();
 };
 
-// Blob представляет собой файлоподобный объект с необработанными бинарными данными
+// Blob файлоподобный объект с необработанными бинарными данными
 export const downloadFile = async (fileId: string, token: string): Promise<Blob> => {
-    const response = await fetch(`${API_BASE_URL}/donwload/${fileId}`, {
+    const response = await fetch(`${API_BASE_URL}/download/${fileId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,

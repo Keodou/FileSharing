@@ -4,6 +4,7 @@ import { LoginForm } from './components/LoginForm';
 import './App.css'
 import { FilesView } from './views/FilesView';
 import { ProtectedRoute } from './components/routes/ProtectedRoute';
+import { PublicFileView } from './views/PublicFileView';
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/public/:token" element={<PublicFileView />} />
         <Route 
           path="/files" 
           element={

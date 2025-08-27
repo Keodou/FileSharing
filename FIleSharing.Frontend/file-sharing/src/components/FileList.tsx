@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { deleteFile, downloadFile, getFiles } from '../services/fileService';
+import { deleteFile, downloadFile, getFiles, shareFile } from '../services/fileService';
 
 interface FileModel {
     id: string;
@@ -23,6 +23,7 @@ export const FileList: React.FC = () => {
             try {
                 const data = await getFiles(token);
                 setFiles(data);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 setError(err.message || 'Ошибка при загрузке файлов');
             } finally {
@@ -46,6 +47,7 @@ export const FileList: React.FC = () => {
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             alert(err.message || 'Ошибка при скачивании файла');
         }
@@ -62,8 +64,23 @@ export const FileList: React.FC = () => {
             await deleteFile(fileId, token);
             //await loadFiles();
             alert('Файл успешно удален')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             alert(err.message || 'Ошибка при удалении файла');
+        }
+    };
+
+    const handleMakePublic = async (fileId: string, fileName: string) => {
+        if (!token) return;
+
+        try {
+            const result = await shareFile(fileId, true, token);
+            //await loadFiles();
+            const publicUrl = `${window.location.origin}/public/${fileId}`;
+            alert(`Файл "${fileName}" теперь доступен по ссылке:\n${publicUrl}\n\n${result}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            alert(err.message || 'Ошибка при публикации файла');
         }
     };
 
@@ -102,6 +119,16 @@ export const FileList: React.FC = () => {
                                     >
                                         Скачать
                                     </button>
+                                    <button 
+                                        onClick={() => handleMakePublic(file.id, file.fileName)}
+                                        style={{
+                                            marginRight: '8px',
+                                            background: '#28a745',
+                                            color: 'white'
+                                        }}
+                                        >
+                                            Сделать публичным
+                                        </button>
                                     <button
                                         onClick={() => handleDelete(file.id, file.fileName)}
                                         style={{ backgroundColor: '#ff4444', color: 'white' }}

@@ -1,5 +1,6 @@
 const API_BASE_URL = "https://localhost:7046/api/Files";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getFiles = async (token: string): Promise<any[]> => {
     const response = await fetch(`${API_BASE_URL}/list`, {
         method: 'GET',
@@ -16,6 +17,7 @@ export const getFiles = async (token: string): Promise<any[]> => {
     return await response.json();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const uploadFile = async (file: File, token: string): Promise<any> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -62,4 +64,38 @@ export const deleteFile = async (fileId: string, token: string): Promise<void> =
     if (!response.ok) {
         throw new Error('Не удалось удалить файл');
     }
-}
+};
+
+export const shareFile = async (fileId: string, isPublic: boolean, token: string): Promise<string> => {
+    const response = await fetch(`${API_BASE_URL}/share/${fileId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            isPublic: isPublic,
+            sharedWithUserId: null
+        }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Не удалось сделать файл публичным');
+    }
+
+    const result = await response.json();
+    return result;
+};
+
+export const downloadPublicFile = async (token: string): Promise<Blob> => {
+    const response = await fetch(`${API_BASE_URL}/share/${token}`, {
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        throw new Error('Такого файла не существует, либо владелец закрыл к нему доступ.');
+    }
+
+    return await response.blob();
+};

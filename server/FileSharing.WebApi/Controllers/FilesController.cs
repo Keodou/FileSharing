@@ -116,7 +116,7 @@ namespace FileSharing.WebApi.Controllers
             
             var (success, message) = await fileService.ShareFileAsync(currentUser.Id, fileId, sharedFileDto.IsPublic,
                 sharedFileDto.SharedWithUserId);
-            return success ? Ok(message) : BadRequest(message);
+            return success ? Ok(new {message}) : BadRequest(new {message});
         }
         
         /// <summary>

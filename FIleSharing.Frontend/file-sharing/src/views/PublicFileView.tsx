@@ -22,7 +22,7 @@ export const PublicFileView: React.FC = () => {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
 
-                alert('Файл успешно скачан!');
+                //alert('Файл успешно скачан!');
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 setError(err.message || 'Ошибка при скачивании файла');

@@ -23,9 +23,9 @@ export const FileList: React.FC = () => {
             try {
                 const data = await getFiles(token);
                 setFiles(data);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (err: any) {
-                setError(err.message || 'Ошибка при загрузке файлов');
+            } catch (err) {
+                console.log("Login error:", err);
+                setError('Ошибка при загрузке файлов');
             } finally {
                 setLoading(false);
             }
@@ -47,9 +47,9 @@ export const FileList: React.FC = () => {
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            alert(err.message || 'Ошибка при скачивании файла');
+        } catch (err) {
+            console.error("Download error:", err);
+            setError('Ошибка при скачивании файла');
         }
     };
 
@@ -64,9 +64,9 @@ export const FileList: React.FC = () => {
             await deleteFile(fileId, token);
             //await loadFiles();
             alert('Файл успешно удален')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            alert(err.message || 'Ошибка при удалении файла');
+        } catch (err) {
+            console.error("Delete error:", err)
+            setError('Ошибка при удалении файла');
         }
     };
 
@@ -78,9 +78,10 @@ export const FileList: React.FC = () => {
             //await loadFiles();
             const publicUrl = `${window.location.origin}/public/${fileId}`;
             alert(`Файл "${fileName}" теперь доступен по ссылке:\n${publicUrl}\n\n${result}`);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            alert(err.message || 'Ошибка при публикации файла');
+            console.log(`Файл "${fileName}" теперь доступен по ссылке:\n${publicUrl}\n\n${result}`);
+        } catch (err) {
+            console.error("Make public error:", err);
+            setError('Ошибка при публикации файла');
         }
     };
 

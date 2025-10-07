@@ -31,23 +31,25 @@ export const LoginForm: React.FC = () => {
 
         <label>
         Имя пользователя:
+        <br />
         <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
         />
-        </label>
+        </label> <br />
 
         <label>
         Пароль:
+        <br />
         <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
         />
-        </label>
+        </label> <br />
       <button type="submit">Войти</button>
     </form>
   );
